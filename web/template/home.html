@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groupie-Tracker</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+<header class="header">
+    <a href="/"  class="header-title">Groupie-Tracker</a>
+</header>
+<main class="main">
+    <div class="container">
+        <div class="artists">
+            {{range .Artists}}
+            <div class="artist">
+                <a href="/artist?id={{.ID}}" class="link">
+                    <div class="artist_img">
+                        <img src="{{.Image}}" alt="{{.Name}}" class="img">
+                    </div>
+                    <div class="details">
+                        <h2 class="name">{{.Name}}</h2>
+                    </div>
+                </a>
+            </div>
+            {{end}}
+        </div>
+    </div>
+</main>
+</body>
+</html>
