@@ -1,0 +1,30 @@
+<title>{{.Name}}</title>
+
+<link rel="stylesheet" href="../../ui/artist.css">
+
+<header>
+    <a href="/">
+        <h1>GROUPIE TRACKER</h1>
+    </a>
+</header>
+
+<main>
+    <div>
+        <img src="{{.Image}}" alt="Изображение">
+    </div>
+    <div>
+        <p>CreationDate: {{.CreationDate}}</p>
+        <p>FirstAlbum: {{.FirstAlbum}}</p>
+        <details>
+            <summary>Members:</summary>
+            <ul>{{range .Members}}<li>{{.}}</li>{{end}}</ul>
+        </details>
+        <details>
+            <summary>Concerts:</summary>
+            {{range $key, $value := .Relations}}
+            Location: {{$key}}
+            <ul>{{range $value}}<li>{{.}}</li>{{end}}</ul>
+            {{end}}
+        </details>
+    </div>
+</main>

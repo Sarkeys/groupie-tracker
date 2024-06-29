@@ -1,0 +1,20 @@
+<title>Groupie Tracker</title>
+
+<link rel="stylesheet" href="../../ui/home.css">
+
+<header>
+    <a href="/">
+        <h1>GROUPIE TRACKER</h1>
+    </a>
+</header>
+
+<main>
+    {{range .}}
+    <a href="/artist?id={{.Id}}">
+        <div class="gallery-item">
+            <img src="{{.Image}}" alt="Изображение">
+            <h3>{{.Name}}</h3>
+        </div>
+    </a>
+    {{end}}
+</main>
