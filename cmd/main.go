@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	addr := flag.String("addr", ":4000", "Сетевой адрес веб-сервера")
+	addr := flag.String("addr", ":4000", "the network address of the web server")
 	flag.Parse()
 
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
@@ -19,7 +19,7 @@ func main() {
 	app := web.NewApplication(errorLog, infoLog)
 	server := web.NewServer(addr, errorLog, app.Routes())
 
-	infoLog.Printf("Launching the server on an http://localhost%s", *addr)
+	infoLog.Printf("launching the server on an http://localhost%s", *addr)
 
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		errorLog.Printf("error when starting the server on http://localhost%s", *addr)

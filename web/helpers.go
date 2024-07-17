@@ -1,10 +1,12 @@
 package web
 
 import (
+	"bytes"
 	"embed"
 	"log"
 	"net/http"
 	"text/template"
+	"time"
 )
 
 type Application struct {
@@ -22,11 +24,6 @@ type ApplicationError struct {
 	Code    int
 }
 
-type ServerError struct {
-	Message string
-	err     error
-}
-
 func NewApplication(errorLog, infoLog *log.Logger) *Application {
 	return &Application{
 		errorLog: errorLog,
@@ -39,9 +36,12 @@ func NewApplication(errorLog, infoLog *log.Logger) *Application {
 
 func NewServer(addr *string, errorLog *log.Logger, mux *http.ServeMux) *http.Server {
 	return &http.Server{
-		Addr:     *addr,
-		ErrorLog: errorLog,
-		Handler:  mux,
+		Addr:         *addr,
+		ErrorLog:     errorLog,
+		Handler:      mux,
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 90 * time.Second,
+		IdleTimeout:  120 * time.Second,
 	}
 }
 
@@ -60,7 +60,7 @@ func init() {
 	}
 }
 
-func (app *Application) ServerError(w http.ResponseWriter, err error) {
+func (app *Application) InternalServerError(w http.ResponseWriter, err error) {
 	app.errorLog.Println(err)
 	app.Errors(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
@@ -82,12 +82,13 @@ func (app *Application) MethodNotAllowed(w http.ResponseWriter) {
 }
 
 func (app *Application) Errors(w http.ResponseWriter, errorMessage string, errorCode int) {
-	w.WriteHeader(errorCode)
-
-	if err := templates.ExecuteTemplate(w, "error.html", ApplicationError{
+	buf := new(bytes.Buffer)
+	if err := templates.ExecuteTemplate(buf, "error.html", ApplicationError{
 		Message: errorMessage,
 		Code:    errorCode,
 	}); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
+	buf.WriteTo(w)
 }

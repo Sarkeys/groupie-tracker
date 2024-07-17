@@ -31,12 +31,13 @@ func (app *Application) GetResponse() (responseData []ResponseData, srverr error
 	if err != nil {
 		return nil, err
 	}
+
 	bytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
 	}
-	err = json.Unmarshal(bytes, &responseData)
-	if err != nil {
+
+	if err = json.Unmarshal(bytes, &responseData); err != nil {
 		return nil, err
 	}
 
@@ -58,13 +59,11 @@ func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
 
 	responseData, err := app.GetResponse()
 	if err != nil {
-		app.ServerError(w, err)
+		app.InternalServerError(w, err)
 		return
 	}
-
-	err = templates.ExecuteTemplate(w, "home.html", responseData)
-	if err != nil {
-		app.ServerError(w, err)
+	if err = templates.ExecuteTemplate(w, "home.html", responseData); err != nil {
+		app.InternalServerError(w, err)
 		return
 	}
 }
@@ -77,13 +76,13 @@ func (app *Application) Artist(w http.ResponseWriter, r *http.Request) {
 
 	responseData, err := app.GetResponse()
 	if err != nil {
-		app.ServerError(w, err)
+		app.InternalServerError(w, err)
 		return
 	}
 
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id > len(responseData) || id <= 0 || r.URL.Query().Get("id")[0] == '0' || len(r.URL.Query()) != 1 {
-		app.NotFound(w)
+		app.BadRequest(w)
 		return
 	}
 
@@ -97,23 +96,25 @@ func (app *Application) Artist(w http.ResponseWriter, r *http.Request) {
 
 	relationsResponse, err := http.Get(responseData[id-1].Relations)
 	if err != nil {
-		app.ServerError(w, err)
+		app.InternalServerError(w, err)
 		return
 	}
+
 	bytes, err := io.ReadAll(relationsResponse.Body)
 	if err != nil {
-		app.ServerError(w, err)
+		app.InternalServerError(w, err)
 		return
 	}
-	err = json.Unmarshal(bytes, &artist)
-	if err != nil {
-		app.ServerError(w, err)
+
+	if err = json.Unmarshal(bytes, &artist); err != nil {
+		app.InternalServerError(w, err)
 		return
 	}
+
 	defer relationsResponse.Body.Close()
 
 	if err = templates.ExecuteTemplate(w, "artist.html", artist); err != nil {
-		app.ServerError(w, err)
+		app.InternalServerError(w, err)
 		return
 	}
 }
