@@ -1,11 +1,14 @@
 package web
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
 	"strconv"
 )
+
+var buf bytes.Buffer
 
 type ResponseData struct {
 	Name         string   `json:"name"`
@@ -62,10 +65,13 @@ func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
 		app.InternalServerError(w, err)
 		return
 	}
-	if err = templates.ExecuteTemplate(w, "home.html", responseData); err != nil {
+
+	if err = templates.ExecuteTemplate(&buf, "home.html", responseData); err != nil {
 		app.InternalServerError(w, err)
 		return
 	}
+
+	buf.WriteTo(w)
 }
 
 func (app *Application) Artist(w http.ResponseWriter, r *http.Request) {
@@ -112,9 +118,10 @@ func (app *Application) Artist(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer relationsResponse.Body.Close()
-
-	if err = templates.ExecuteTemplate(w, "artist.html", artist); err != nil {
+	buf.Reset()
+	if err = templates.ExecuteTemplate(&buf, "artist.html", artist); err != nil {
 		app.InternalServerError(w, err)
 		return
 	}
+	buf.WriteTo(w)
 }
